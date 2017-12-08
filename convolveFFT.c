@@ -345,23 +345,28 @@ int main(int argc, char* argv[])
 	//Fusion/jamming preformed: combined too loops so double the work isn't done,
 	//reduces loop overhead.
 
-	for (int i = 0; i < doubleMaxSize; i++)
+	for (int i = 0; i < doubleMaxSize - 1; i += 2)
 	{
 		complexIR[i] = 0.0;
 		complexInput[i] = 0.0;
+		complexIR[i+1] = 0.0;
+		complexInput[i+1] = 0.0;
 	}
 	double MAX_VAL = 32767.f;
 
 	//rewrite every other array element for real part
 	//unable to jamm here as the loop counters are different, possible a section
 	// if logic is changed
-	for (int i = 0; i < number_Samples; i++)
+	//code tuning: partial unrolling
+	for (int i = 0; i < number_Samples - 1 ; i += 2)
 	{
 		complexInput[2 * i] = ((double)data[i]) / 32767.0;
+		complexInput[(i + 1) * 2] = ((double)data[i + 1]) / 32767.0;
 	}
-	for (int i = 0; i < number_SamplesIR; i++)
+	for (int i = 0; i < number_SamplesIR - 1; i += 2)
 	{
 		complexIR[2 * i] = ((double)dataIR[i]) / 32767.0;
+		complexIR[2 * (i + 1)] = ((double)dataIR[i + 1]) / 32767.0;
 	}
 
   //Time Domain Transofmation using provided four1
@@ -375,14 +380,24 @@ int main(int argc, char* argv[])
 
 	// complex multiplication of the input and ir response
 
-	//good section for jamming as counters match
+	//Code Tuning: good section for jamming as counters match
+	//Code tuning: minimizing array references
+	int temp;
 	for (int i = 0; i < maxSizePow2; i++)
 	{
-		complexOutput[i * 2] = complexInput[i] * complexIR[i] - complexInput[i + 1] * complexIR[i + 1];
-	// }
-	// for (int i = 0; i < maxSizePow2; i++)
-	// {
-		complexOutput[i * 2 + 1] = complexInput[i + 1] * complexIR[i] + complexInput[i] * complexIR[i + 1];
+	// 	complexOutput[i * 2] = complexInput[i] * complexIR[i] - complexInput[i + 1] * complexIR[i + 1];
+	// // }
+	// // for (int i = 0; i < maxSizePow2; i++)
+	// // {
+	// 	complexOutput[i * 2 + 1] = complexInput[i + 1] * complexIR[i] + complexInput[i] * complexIR[i + 1];
+		temp = i+i;
+		double x = complexInput[i];
+		double k = complexInput[i+1];
+		double IR1 = complexIR[i];
+		double IR2 = complexIR[i+1];
+		complexOutput[temp] = x * IR1 - k * IR2;
+		complexOutput[temp + 1] = k * IR1 + k * IR2;
+
 	}
 
 
