@@ -342,17 +342,19 @@ int main(int argc, char* argv[])
 
 
 	// zero pad both arrays, imaginary will stay zeros
+	//Fusion/jamming preformed: combined too loops so double the work isn't done,
+	//reduces loop overhead.
+
 	for (int i = 0; i < doubleMaxSize; i++)
 	{
 		complexIR[i] = 0.0;
-	}
-	for (int i = 0; i < doubleMaxSize; i++)
-	{
 		complexInput[i] = 0.0;
 	}
 	double MAX_VAL = 32767.f;
 
 	//rewrite every other array element for real part
+	//unable to jamm here as the loop counters are different, possible a section
+	// if logic is changed
 	for (int i = 0; i < number_Samples; i++)
 	{
 		complexInput[2 * i] = ((double)data[i]) / 32767.0;
@@ -372,13 +374,14 @@ int main(int argc, char* argv[])
 	complexOutput = (double*)malloc(sizeof(double) *doubleMaxSize);
 
 	// complex multiplication of the input and ir response
+
+	//good section for jamming as counters match
 	for (int i = 0; i < maxSizePow2; i++)
 	{
 		complexOutput[i * 2] = complexInput[i] * complexIR[i] - complexInput[i + 1] * complexIR[i + 1];
-	}
-
-	for (int i = 0; i < maxSizePow2; i++)
-	{
+	// }
+	// for (int i = 0; i < maxSizePow2; i++)
+	// {
 		complexOutput[i * 2 + 1] = complexInput[i + 1] * complexIR[i] + complexInput[i] * complexIR[i + 1];
 	}
 
