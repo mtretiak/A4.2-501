@@ -381,10 +381,11 @@ int main(int argc, char* argv[])
 
 	//Code Tuning: good section for jamming as counters match
 	//Code tuning: minimizing array references
+	//code tuning: strength reduction was preformed
 	int temp;
 	for (int i = 0; i < maxSizePow2; i++)
 	{
-	// 	complexOutput[i * 2] = complexInput[i] * complexIR[i] - complexInput[i + 1] * complexIR[i + 1];
+	//complexOutput[i * 2] = complexInput[i] * complexIR[i] - complexInput[i + 1] * complexIR[i + 1];
 	// // }
 	// // for (int i = 0; i < maxSizePow2; i++)
 	// // {
