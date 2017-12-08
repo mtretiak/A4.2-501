@@ -188,17 +188,12 @@ int saveWave(char* filename, double outputSignal[], int sampleCount)
 
 		float maxSample = -1;
 		float MAX_VAL = 32767.f;
+		maxSample = outputSignal[0];
 
 		for (int i = 0; i < sampleCount; i++)
 		{
-			if (i == 0)
-			{
-				maxSample = outputSignal[0];
-			}
-			else if (outputSignal[i] > maxSample)
-			{
 				maxSample = outputSignal[i];
-			}
+
 		}
 
 		//scale and re write the data
@@ -346,32 +341,28 @@ int main(int argc, char* argv[])
 	//reduces loop overhead.
 	//codetuning: partial unrolling applied again
 
-	for (int i = 0; i < doubleMaxSize - 2; i += 3)
+	for (int i = 0; i < doubleMaxSize - 1; i += 2)
 	{
 		complexIR[i] = 0.0;
 		complexInput[i] = 0.0;
 		complexIR[i+1] = 0.0;
 		complexInput[i+1] = 0.0;
-		complexIR[i+2] = 0.0;
-		complexInput[i+2] = 0.0;
 	}
 	double MAX_VAL = 32767.f;
 
 	//rewrite every other array element for real part
 	//unable to jamm here as the loop counters are different, possible a section
 	// if logic is changed
-	//code tuning: partial unrolling applied twice
-	for (int i = 0; i < number_Samples - 2 ; i += 3)
+	//code tuning: partial unrolling
+	for (int i = 0; i < number_Samples - 1 ; i += 2)
 	{
 		complexInput[2 * i] = ((double)data[i]) / 32767.0;
 		complexInput[(i + 1) * 2] = ((double)data[i + 1]) / 32767.0;
-		complexInput[(i + 2) * 2] = ((double)data[i + 2]) / 32767.0;
 	}
-	for (int i = 0; i < number_SamplesIR - 2; i += 3)
+	for (int i = 0; i < number_SamplesIR - 1; i += 2)
 	{
 		complexIR[2 * i] = ((double)dataIR[i]) / 32767.0;
 		complexIR[2 * (i + 1)] = ((double)dataIR[i + 1]) / 32767.0;
-		complexIR[2 * (i + 1)] = ((double)dataIR[i + 2]) / 32767.0;
 	}
 
   //Time Domain Transofmation using provided four1
